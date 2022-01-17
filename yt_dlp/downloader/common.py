@@ -76,6 +76,8 @@ class FileDownloader(object):
         self.params = params
         self._prepare_multiline_status()
         self.add_progress_hook(self.report_progress)
+        self.speed_smoother = ExponentialSmoothing(0.075)
+        self.eta_smoother = ExponentialSmoothing(0.075)
 
     @staticmethod
     def format_seconds(seconds):
@@ -325,7 +327,7 @@ class FileDownloader(object):
             return
 
         if s.get('eta') is not None:
-            s['_eta_str'] = self.format_eta(s['eta'])
+            s['_eta_str'] = self.format_eta(self.eta_smoother.append_value(s['eta']))
         else:
             s['_eta_str'] = 'Unknown'
 
@@ -340,7 +342,7 @@ class FileDownloader(object):
                 s['_percent_str'] = 'Unknown %'
 
         if s.get('speed') is not None:
-            s['_speed_str'] = self.format_speed(s['speed'])
+            s['_speed_str'] = self.format_speed(self.speed_smoother.append_value(s['speed']))
         else:
             s['_speed_str'] = 'Unknown speed'
 
@@ -470,3 +472,29 @@ class FileDownloader(object):
             exe = os.path.basename(str_args[0])
 
         self.write_debug('%s command line: %s' % (exe, shell_quote(str_args)))
+
+
+# TODO: Add description.
+class ExponentialSmoothing:
+    def __init__(self, smoothing_factor = 0.2):
+        self.measurements = []
+        self.forecasts = []
+        if isinstance(smoothing_factor, float) and smoothing_factor > 0 and smoothing_factor < 1:
+            self.smoothing_factor = smoothing_factor
+        else:
+            self.smoothing_factor = 0.2
+
+    def get_weighted_average(self):
+        if len(self.forecasts) <= 0:
+            return None
+        return self.forecasts[-1:][0]
+
+    def append_value(self, value):
+        self.measurements.append(value)
+        if len(self.forecasts) > 0:
+            new_forecast = self.smoothing_factor * self.measurements[-1:][0] + (1 - self.smoothing_factor) * self.forecasts[-1:][0]
+            self.forecasts.append(new_forecast)
+            return new_forecast
+        else:
+            self.forecasts.append(value)
+            return value
