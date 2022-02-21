@@ -1,6 +1,5 @@
-from matplotlib.image import thumbnail
-from sqlalchemy import false
 from .common import InfoExtractor
+
 
 class Pr0grammIE(InfoExtractor):
     _VALID_URL = r'(?:https?://)?(?:www\.)?pr0gramm\.com/top(?:/[a-zA-Z0-9 üöäß?]+)?/(?P<id>[0-9]+)'
@@ -22,7 +21,9 @@ class Pr0grammIE(InfoExtractor):
 
     def _real_extract(self, url):
         video_id = self._match_id(url)
-        webpage = self._download_webpage(url, video_id)
+
+        # TODO: We'll probably need this in the future to extact tags and comments.
+        # webpage = self._download_webpage(url, video_id)
 
         api_response = self.get_from_api(video_id)
 
@@ -31,14 +32,17 @@ class Pr0grammIE(InfoExtractor):
 
         return {
             'id': video_id,
-            'title': video_id, # TODO: There is no title for Pr0gramm videos. Maybe we just use the video id?
-            'description': "video description", # TODO: There is also no description for Pr0gramm videos...
+            'title': video_id,  # TODO: There is no title for Pr0gramm videos. Maybe we just use the video id?
+            'description': "video description",  # TODO: There is also no description for Pr0gramm videos...
+
+            # TODO: These should probably be None if the paths are not set at all.
             'url': f"https://vid.pr0gramm.com/{image_path}",
             'thumbnail': f"https://thumb.pr0gramm.com/{thumbnail_path}",
+
             'uploader_id': api_response.get('userId'),
 
             # This does not work right now, because the page does not contain the user if there is no JS to load the content.
-            #'uploader': self._search_regex(r'<a [^>]+class="user[^>]+>([a-zA-Z0-9]+)</a>', webpage, 'uploader', fatal=False, default=None),
+            # 'uploader': self._search_regex(r'<a [^>]+class="user[^>]+>([a-zA-Z0-9]+)</a>', webpage, 'uploader', fatal=False, default=None),
 
             'timestamp': api_response.get('created'),
 
