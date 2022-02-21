@@ -1,5 +1,4 @@
 from .common import InfoExtractor
-from ..utils import *
 
 
 class Pr0grammIE(InfoExtractor):
@@ -12,7 +11,6 @@ class Pr0grammIE(InfoExtractor):
             'ext': 'mp4',
             'title': '4993614',
             'thumbnail': r're:^https?://.*\.jpg$',
-            # 'description': '',
             'timestamp': 1644173081,
             'upload_date': '20220206',
             'uploader_id': 14316,
@@ -27,7 +25,6 @@ class Pr0grammIE(InfoExtractor):
             'ext': 'mp4',
             'title': '5014992',
             'thumbnail': r're:^https?://.*\.jpg$',
-            # 'description': '',
             'timestamp': 1645434037,
             'upload_date': '20220221',
             'uploader_id': 326802,
@@ -58,7 +55,7 @@ class Pr0grammIE(InfoExtractor):
             'uploader': api_response.get('user'),
             'uploader_id': api_response.get('userId'),
 
-            # This does not work right now, because the page does not contain the user if there is no JS to load the content.
+            # Looks like we can get the uploader directly from the API response, so we do not need the regex.
             # 'uploader': self._search_regex(r'<a [^>]+class="user[^>]+>([a-zA-Z0-9]+)</a>', webpage, 'uploader', fatal=False, default=None),
 
             'timestamp': api_response.get('created'),
