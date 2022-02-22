@@ -84,6 +84,8 @@ class Pr0grammIE(InfoExtractor):
 
             # TODO: more properties (see yt_dlp/extractor/common.py)
             # comments, comment_count, tags, upload_date
+            # comments and tags can be pulled from the API as documented here: https://github.com/NuGetHub/pr0gramm-api-dokumentation/blob/master/pr0gramm.postman_collection.json
+            # Just query https://pr0gramm.com/api/items/info?itemId=<video_id>
         }
 
     def get_from_api(self, id):
