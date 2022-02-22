@@ -30,6 +30,20 @@ class Pr0grammIE(InfoExtractor):
             'uploader_id': 326802,
             'uploader': 'Vermileeyore'
         }
+    },
+        {
+        'url': r'https://pr0gramm.com/top/Ente%20gut%20alles%20gut/4922300',
+        'md5': '93d47837da5b69790103b6dd425ed8c5',
+        'info_dict': {
+            'id': '4922300',
+            'ext': 'mp4',
+            'title': '4922300',
+            'thumbnail': r're:^https?://.*\.jpg$',
+            'timestamp': 1640531947,
+            'upload_date': '20211226',
+            'uploader_id': 50520,
+            'uploader': 'semam'
+        }
     }]
 
     def _real_extract(self, url):
@@ -59,6 +73,8 @@ class Pr0grammIE(InfoExtractor):
             # 'uploader': self._search_regex(r'<a [^>]+class="user[^>]+>([a-zA-Z0-9]+)</a>', webpage, 'uploader', fatal=False, default=None),
 
             'timestamp': api_response.get('created'),
+            'like_count': api_response.get('up'),
+            'dislike_count': api_response.get('down')
 
             # TODO: more properties (see yt_dlp/extractor/common.py)
             # comments, comment_count, tags, upload_date
