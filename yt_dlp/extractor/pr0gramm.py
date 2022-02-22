@@ -14,7 +14,9 @@ class Pr0grammIE(InfoExtractor):
             'timestamp': 1644173081,
             'upload_date': '20220206',
             'uploader_id': 14316,
-            'uploader': 'MUSE'
+            'uploader': 'MUSE',
+            'like_count': int,
+            'dislike_count': int
         }
     },
         {
@@ -28,7 +30,9 @@ class Pr0grammIE(InfoExtractor):
             'timestamp': 1645434037,
             'upload_date': '20220221',
             'uploader_id': 326802,
-            'uploader': 'Vermileeyore'
+            'uploader': 'Vermileeyore',
+            'like_count': int,
+            'dislike_count': int
         }
     },
         {
@@ -42,7 +46,9 @@ class Pr0grammIE(InfoExtractor):
             'timestamp': 1640531947,
             'upload_date': '20211226',
             'uploader_id': 50520,
-            'uploader': 'semam'
+            'uploader': 'semam',
+            'like_count': int,
+            'dislike_count': int
         }
     }]
 
