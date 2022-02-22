@@ -16,7 +16,10 @@ class Pr0grammIE(InfoExtractor):
             'uploader_id': 14316,
             'uploader': 'MUSE',
             'like_count': int,
-            'dislike_count': int
+            'dislike_count': int,
+            'comment_count': int,
+            'comments': list,
+            'tags': list
         }
     },
         {
@@ -32,7 +35,10 @@ class Pr0grammIE(InfoExtractor):
             'uploader_id': 326802,
             'uploader': 'Vermileeyore',
             'like_count': int,
-            'dislike_count': int
+            'dislike_count': int,
+            'comment_count': int,
+            'comments': list,
+            'tags': list
         }
     },
         {
@@ -48,20 +54,28 @@ class Pr0grammIE(InfoExtractor):
             'uploader_id': 50520,
             'uploader': 'semam',
             'like_count': int,
-            'dislike_count': int
+            'dislike_count': int,
+            'comment_count': int,
+            'comments': list,
+            'tags': list
         }
     }]
 
     def _real_extract(self, url):
         video_id = self._match_id(url)
 
-        # TODO: We'll probably need this in the future to extact tags and comments.
+        # TODO: We maybe need this in the future to extact tags and comments, even though we get this info from the API I guess.
         # webpage = self._download_webpage(url, video_id)
 
-        api_response = self.get_from_api(video_id)
+        api_response = self.get_post_details_from_api(video_id)
 
         image_path = api_response.get('image')
         thumbnail_path = api_response.get('thumb')
+
+        detail_api_response = self.get_post_comments_and_tags_from_api(video_id)
+
+        tags = list(map(lambda t: t.get('tag'), detail_api_response.get('tags')))
+        comments = list(map(lambda c: self.map_comment(c), detail_api_response.get('comments')))
 
         return {
             'id': video_id,
@@ -75,19 +89,35 @@ class Pr0grammIE(InfoExtractor):
             'uploader': api_response.get('user'),
             'uploader_id': api_response.get('userId'),
 
-            # Looks like we can get the uploader directly from the API response, so we do not need the regex.
-            # 'uploader': self._search_regex(r'<a [^>]+class="user[^>]+>([a-zA-Z0-9]+)</a>', webpage, 'uploader', fatal=False, default=None),
-
             'timestamp': api_response.get('created'),
             'like_count': api_response.get('up'),
-            'dislike_count': api_response.get('down')
+            'dislike_count': api_response.get('down'),
 
-            # TODO: more properties (see yt_dlp/extractor/common.py)
-            # comments, comment_count, tags, upload_date
             # comments and tags can be pulled from the API as documented here: https://github.com/NuGetHub/pr0gramm-api-dokumentation/blob/master/pr0gramm.postman_collection.json
             # Just query https://pr0gramm.com/api/items/info?itemId=<video_id>
+            'tags': tags,
+            'comments': comments,
+            'comment_count': len(comments)
+
+            # TODO: more properties (see yt_dlp/extractor/common.py)
         }
 
-    def get_from_api(self, id):
+    def get_post_details_from_api(self, id):
         full_api_result = self._download_json(f"https://pr0gramm.com/api/items/get?id={id}", id)
         return next((r for r in full_api_result["items"] if r["id"] == int(id)), None)
+
+    def get_post_comments_and_tags_from_api(self, id):
+        api_result = self._download_json(f"https://pr0gramm.com/api/items/info?itemId={id}", id, fatal=False)
+        return api_result
+
+    def map_comment(self, api_comment):
+        parent = api_comment.get('parent') if api_comment.get('parent') != 0 else 'root'
+        return {
+            'author': api_comment.get('name'),
+            'id': api_comment.get('id'),
+            'text': api_comment.get('content'),
+            'timestamp': api_comment.get('created'),
+            'parent': parent,
+            'like_count': api_comment.get('up'),
+            'dislike_count': api_comment.get('down'),
+        }
